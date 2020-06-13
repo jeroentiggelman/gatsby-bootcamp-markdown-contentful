@@ -8,6 +8,7 @@ const BlogPage = () => {
       allMarkdownRemark {
         edges {
           node {
+            id
             frontmatter {
               title
               date
@@ -27,7 +28,7 @@ const BlogPage = () => {
         {/* map posts from array with loop */}
         {posts.map(post => {
           return (
-            <li>
+            <li key={post.node.id}>
               <h2>{post.node.frontmatter.title}</h2>
               <p>{post.node.frontmatter.date}</p>
             </li>
