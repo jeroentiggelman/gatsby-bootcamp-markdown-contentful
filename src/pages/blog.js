@@ -21,22 +21,48 @@ const BlogPage = () => {
           }
         }
       }
+      allContentfulBlogPost(sort: { fields: publishedDate, order: DESC }) {
+        edges {
+          node {
+            title
+            slug
+            publishedDate(formatString: "YYYY-MM-DD")
+          }
+        }
+      }
     }
   `)
-  // put data array in 1 variable (not obligatory, more to keep code easier to read)
+
+  // put data arrays in a variable (not obligatory, more to keep code easier to read)
   const posts = data.allMarkdownRemark.edges
+  const contentfulPosts = data.allContentfulBlogPost.edges
 
   return (
     <Layout>
       <h1>Blog</h1>
+      <h2>Posts from Markdown files</h2>
       <ol className={blogStyles.posts}>
         {/* map posts from array with loop */}
         {posts.map(post => {
           return (
             <li className={blogStyles.post}>
               <Link to={`/blog/${post.node.fields.slug}`}>
-                <h2>{post.node.frontmatter.title}</h2>
+                <h3>{post.node.frontmatter.title}</h3>
                 <p>{post.node.frontmatter.date}</p>
+              </Link>
+            </li>
+          )
+        })}
+      </ol>
+      <h2>Posts from Contentful</h2>
+      <ol className={blogStyles.posts}>
+        {/* map posts from array with loop */}
+        {contentfulPosts.map(contentfulPost => {
+          return (
+            <li className={blogStyles.post}>
+              <Link to={`/contentful/${contentfulPost.node.slug}`}>
+                <h3>{contentfulPost.node.title}</h3>
+                <p>{contentfulPost.node.publishedDate}</p>
               </Link>
             </li>
           )
