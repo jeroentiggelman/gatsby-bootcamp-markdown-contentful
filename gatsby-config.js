@@ -6,11 +6,12 @@
 
 module.exports = {
   siteMetadata: {
-    title: "Gatsby tutorial",
+    title: "Gatsby Bootcamp",
     author: "Jeroen Tiggelman",
   },
   /* Your site config here */
   plugins: [
+    `gatsby-plugin-react-helmet`,
     {
       resolve: `gatsby-source-contentful`,
       options: {
