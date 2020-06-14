@@ -1,7 +1,7 @@
 const path = require("path")
 
 // create a new node field for the slug -> based on the filename without path and extension
-module.exports.onCreateNode = ({ node, actions }) => {
+exports.onCreateNode = ({ node, actions }) => {
   const { createNodeField } = actions
 
   if (node.internal.type === "MarkdownRemark") {
@@ -15,15 +15,18 @@ module.exports.onCreateNode = ({ node, actions }) => {
   }
 }
 
-module.exports.createPages = async ({ graphql, actions }) => {
+exports.createPages = ({ graphql, actions }) => {
   const { createPage } = actions
 
-  // get path to template
-  const blogTemplate = path.resolve("./src/templates/blog.js")
+  // get paths to templates
+  const templates = {
+    blogTemplate: path.resolve("./src/templates/blog.js"),
+    contentfulTemplate: path.resolve("./src/templates/contentful.js"),
+  }
 
   // get markdown data
-  const res = await graphql(`
-    query {
+  return graphql(`
+    {
       allMarkdownRemark {
         edges {
           node {
@@ -33,17 +36,37 @@ module.exports.createPages = async ({ graphql, actions }) => {
           }
         }
       }
+      allContentfulBlogPost {
+        edges {
+          node {
+            slug
+          }
+        }
+      }
     }
-  `)
+  `).then(res => {
+    if (res.errors) return Promise.reject(res.errors)
 
-  // create new pages from markdown data
-  res.data.allMarkdownRemark.edges.forEach(edge => {
-    createPage({
-      component: blogTemplate,
-      path: `/blog/${edge.node.fields.slug}`,
-      context: {
-        slug: edge.node.fields.slug,
-      },
+    const markdownPosts = res.data.allMarkdownRemark.edges
+    const contentfulPosts = res.data.allContentfulBlogPost.edges
+
+    markdownPosts.forEach(({ node }) => {
+      createPage({
+        component: templates.blogTemplate,
+        path: `/blog/${node.fields.slug}`,
+        context: {
+          slug: node.fields.slug,
+        },
+      })
+    })
+    contentfulPosts.forEach(({ node }) => {
+      createPage({
+        component: templates.contentfulTemplate,
+        path: `/contentful/${node.slug}`,
+        context: {
+          slug: node.slug,
+        },
+      })
     })
   })
 }
