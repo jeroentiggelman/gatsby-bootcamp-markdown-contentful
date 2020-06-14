@@ -19,6 +19,7 @@ export const query = graphql`
 const Contentful = props => {
   const options = {
     renderNode: {
+      // find a solution to use Img from Gatsby
       "embedded-asset-block": node => {
         const alt = node.data.target.fields.title["en-US"]
         const url = node.data.target.fields.file["en-US"].url
